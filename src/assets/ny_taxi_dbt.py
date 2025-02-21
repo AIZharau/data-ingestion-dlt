@@ -3,6 +3,8 @@ from dagster_dbt import dbt_assets, DbtCliResource, DbtProject
 from pathlib import Path
 import subprocess
 import tempfile
+import shutil
+
 
 # Clone repository to temporary directory
 with tempfile.TemporaryDirectory() as tmp_dir:
@@ -20,6 +22,12 @@ with tempfile.TemporaryDirectory() as tmp_dir:
 
     # Make manifest
     subprocess.run(["dbt", "compile"], cwd=dbt_project_directory, check=True)
+
+    manifest_path = dbt_project_directory / "target" / "manifest.json"
+    persistent_manifest_path = Path("path/to/persistent/directory") / "manifest.json"
+    shutil.copy(manifest_path, persistent_manifest_path)
+
+    dbt_project.manifest_path = persistent_manifest_path
 
     # Initialize dbt project
     dbt_project = DbtProject(project_dir=dbt_project_directory)
