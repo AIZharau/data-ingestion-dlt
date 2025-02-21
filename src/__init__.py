@@ -1,4 +1,4 @@
-from scr.definitions import defs 
+from srс.definitions import defs 
 
 
 __all__ = ("defs", )
