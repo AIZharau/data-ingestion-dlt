@@ -4,10 +4,10 @@ from dlt.sources.helpers import requests
 import datetime
 import os
 
-from dlt.common.lobs.pyarrow import pyarrow as pa
+from dlt.common.libs.pyarrow import pyarrow as pa
 
 
-BATH_SIZE = 100_000
+BATCH_SIZE = 100_000
 
 
 def get_taxi_data_url(taxi_type, year, month):
@@ -16,16 +16,16 @@ def get_taxi_data_url(taxi_type, year, month):
 
 
 @dlt.source(name="ny_taxi")
-def taxi_source(
+def ny_taxi_source(
     taxi_type: str,
     year: str,
     month: str,
 ):
-    @dlt.recource(
+    @dlt.resource(
         name=f"taxi_data_{taxi_type}",
         table_format="iceberg",
         file_format="parquet",
-        write_desposition="append",
+        write_disposition="append",
         columns={"custom_date": {"partition": True}},
     )
     def taxi_data_chunker():
@@ -41,10 +41,10 @@ def taxi_source(
                     f.write(chunk)
 
             parquet_file = pq.ParquetFile(temp_path)
-            for batch in parquet_file.iter_batches(bath_size=BATH_SIZE):
+            for batch in parquet_file.iter_batches(batch_size=BATCH_SIZE):
                 table = pa.Table.from_batches([batch])
                 date_column = pa.array(
-                    [datatime.date(year, month, 1)] * len(table), type=pa.date32()
+                    [datetime.date(year, month, 1)] * len(table), type=pa.date32()
                 )
                 table = table.append_column(
                     "custom_date", pa.chunked_array([date_column])
@@ -53,6 +53,6 @@ def taxi_source(
                 yield table
         os.remove(temp_path)
 
-    recource = taxi_data_chunker
+    resource = taxi_data_chunker
 
-    return recource
+    return resource
