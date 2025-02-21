@@ -4,25 +4,18 @@ from pathlib import Path
 
 
 
-RELATIVE_PATH_TO_MY_DBT_PROJECT = "../../de-zoomcamp-2025/dbt_clickhouse_taxi_rides"
+# Points to the dbt project path
+dbt_project_directory = Path(__file__).absolute().parent.parent.parent / "dbt_clickhouse_ny_taxi_rides"
+dbt_project = DbtProject(project_dir=dbt_project_directory)
 
-dbt_project_directory = DbtProject(
-    project_dir=Path(__file__)
-    .parent
-    .parent
-    .parent
-    .joinpath(RELATIVE_PATH_TO_MY_DBT_PROJECT)
-    .resolve()
-)
-
-# Initialize dbt project
-dbt_project = DbtProject(project_dir=dbt_project_path)
+# References the dbt project object
 dbt_resource = DbtCliResource(project_dir=dbt_project)
 
-# Prepare dbt project
+# Compiles the dbt project & allow Dagster to build an asset graph
 dbt_project.prepare_if_dev()
 
-# Asset definition remains the same
+
+# Yields Dagster events streamed from the dbt CLI
 @dbt_assets(manifest=dbt_project.manifest_path)
 def dbt_assets_models(context: dg.AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(["build"], context=context).stream()
