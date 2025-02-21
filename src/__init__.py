@@ -1,4 +1,4 @@
-from srс.definitions import defs 
+from src.definitions import defs 
 
 
 __all__ = ("defs", )
