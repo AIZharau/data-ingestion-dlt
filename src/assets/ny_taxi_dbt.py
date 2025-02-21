@@ -4,17 +4,19 @@ from pathlib import Path
 
 
 
-RELATIVE_PATH_TO_MY_DBT_PROJECT = "../de-zoomcamp-2025/dbt_clickhouse_taxy_rides"
+RELATIVE_PATH_TO_MY_DBT_PROJECT = "../../de-zoomcamp-2025/dbt_clickhouse_taxi_rides"
 
 dbt_project_directory = DbtProject(
     project_dir=Path(__file__)
     .parent
+    .parent
+    .parent
     .joinpath(RELATIVE_PATH_TO_MY_DBT_PROJECT)
-    .resolve(),
+    .resolve()
 )
 
 # Initialize dbt project
-dbt_project = DbtProject(project_dir=dbt_project_directory)
+dbt_project = DbtProject(project_dir=dbt_project_path)
 dbt_resource = DbtCliResource(project_dir=dbt_project)
 
 # Prepare dbt project
